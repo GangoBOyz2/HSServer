@@ -1,2 +1,6 @@
 getgenv().EnabledHN = true
 getgenv().EnabledAB = true
+getgenv().EnabledASRM = true
+getgenv().EnabledMM2 = true
+getgenv().EnabledRH2 = true
+getgenv().EnabledHL = true
