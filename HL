@@ -1,1 +1,113 @@
+local url = "https://raw.githubusercontent.com/GangoBOyz2/HSServer/refs/heads/main/status"
+local success, result = pcall(function()
+    return loadstring(game:HttpGet(url))()
+end)
 
+if not success then
+    warn("Failed to load script: ".. tostring(result))
+end
+
+if getgenv().EnabledHL then
+    local Luna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nebula-Softworks/Luna-Interface-Suite/refs/heads/master/source.lua", true))()
+
+local Window = Luna:CreateWindow({
+	Name = "Holy Services",
+	Subtitle = nil,
+	LogoID = nil,
+	LoadingEnabled = true,
+	LoadingTitle = "Holy Services",
+	LoadingSubtitle = "Best Script Ever",
+	ConfigSettings = {
+		ConfigFolder = "HolyHub"
+	},
+	KeySystem = false
+})
+
+local MainTab = Window:CreateTab({
+	Name = "Main",
+	Icon = "home",
+	ImageSource = "Lucide",
+	ShowTitle = true
+})
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local lp = Players.LocalPlayer
+
+local dur = 0.72
+local holding = false
+local toggleEnabled = false
+local connection
+
+local function onInputBegan(input, gameProcessed)
+	if gameProcessed or holding then return end
+	if (input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.E) or
+	   (input.UserInputType == Enum.UserInputType.Gamepad1 and input.KeyCode == Enum.KeyCode.ButtonX) then
+		holding = true
+		keypress(0x45)
+		task.wait(dur)
+		keyrelease(0x45)
+		holding = false
+	end
+end
+
+local AutoPerfectToggle = MainTab:CreateToggle({
+	Name = "Enable Auto Perfect",
+	Description = "Automatically holds E for perfect timing",
+	CurrentValue = false,
+	Callback = function(state)
+		toggleEnabled = state
+		if state then
+			connection = UserInputService.InputBegan:Connect(onInputBegan)
+		else
+			if connection then
+				connection:Disconnect()
+				connection = nil
+			end
+		end
+	end
+}, "AutoPerfect")
+
+local sounds = {
+	["Default"] = "15035753447",
+	["Green Light"] = "7596288191",
+	["Coin"] = "6988710942",
+	["Shot"] = "127793374596820",
+	["Flame"] = "4403634269",
+	["Bang"] = "96437383266333",
+	["Ice"] = "632831227",
+}
+
+local function getSound()
+	local char = lp.Character or workspace:FindFirstChild(lp.Name)
+	if not char then return nil end
+	local greenSound = char:FindFirstChild("GreenSound")
+	if not greenSound then return nil end
+	return greenSound:FindFirstChild("WomboCombo")
+end
+
+local GreenSoundDropdown = MainTab:CreateDropdown({
+	Name = "Select Green Sound",
+	Description = "Change the GreenSound's WomboCombo",
+	Options = table.pack(table.unpack((function()
+		local keys = {}
+		for k in pairs(sounds) do
+			table.insert(keys, k)
+		end
+		return keys
+	end)())),
+	CurrentOption = {"Default"},
+	MultipleOptions = false,
+	Callback = function(option)
+		local selectedId = sounds[option]
+		local sound = getSound()
+		if sound and selectedId then
+			sound.SoundId = "rbxassetid://" .. selectedId
+		end
+	end
+}, "GreenSoundSelect")
+
+Luna:LoadAutoloadConfig()
+else 
+    print("FAILED LOADING SCRIPT... ❌")
+end
